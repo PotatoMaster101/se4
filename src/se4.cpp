@@ -12,7 +12,7 @@
 namespace {
     constexpr auto SE4_DX11{ L"SniperElite4_DX11.exe" };    // game process name (DX11)
     constexpr auto SE4_DX12{ L"SniperElite4_DX12.exe" };    // game process name (DX12)
-    constexpr LONG SE4_THREADPRI_DX11{ 6 };                 // CE detection thread priority (DX11)
+    constexpr LONG SE4_THREADPRI_DX11{ 2 };                 // CE detection thread priority (DX11)
     constexpr LONG SE4_THREADPRI_DX12{ 2 };                 // CE detection thread priority (DX12)
 }
 
