@@ -12,8 +12,8 @@
 namespace {
     constexpr auto SE4_DX11{ L"SniperElite4_DX11.exe" };    // game process name (DX11)
     constexpr auto SE4_DX12{ L"SniperElite4_DX12.exe" };    // game process name (DX12)
-    constexpr LONG SE4_THREADPRI_DX11{ 2 };                 // CE detection thread priority (DX11)
-    constexpr LONG SE4_THREADPRI_DX12{ 2 };                 // CE detection thread priority (DX12)
+    constexpr LONG SE4_THREADPRI{ 2 };                      // CE detection thread priority
+    constexpr LONG SE4_THREADPRI_ALTERNATE{ 6 };            // CE detection thread alternate priority, DX11 will use 2 or 6
 }
 
 // Returns the pid of the specified process name, 0 on error.
@@ -67,22 +67,23 @@ bool kill_thread(DWORD thid) {
     return ret;
 }
 
-// Returns the game process pid and whether if the game is running on DX12. 0 pid means error.
-inline std::pair<DWORD, bool> get_game_proc() {
+// Returns the game process pid. 0 pid means error.
+inline DWORD get_game_proc() {
     auto pid = get_proc(SE4_DX11);
-    return (pid == 0) ? std::pair{get_proc(SE4_DX12), true} : std::pair{pid, false};
+    return pid == 0 ? get_proc(SE4_DX12) : pid;
 }
 
 // Entry point.
 int main() {
-    auto [pid, dx12] = get_game_proc();
+    auto pid = get_game_proc();
     if (pid == 0) {
         std::cerr << "ERROR: Game process not found\n";
         return 1;
     }
     std::cout << "INFO: Game process found (" << pid << ")\n";
 
-    auto thid = get_pri_thread(pid, dx12 ? SE4_THREADPRI_DX12 : SE4_THREADPRI_DX11);
+    auto thid = get_pri_thread(pid, SE4_THREADPRI);
+    thid = thid == 0 ? get_pri_thread(pid, SE4_THREADPRI_ALTERNATE) : thid;
     if (thid == 0) {
         std::cerr << "ERROR: Game thread not found\n";
         return 1;
